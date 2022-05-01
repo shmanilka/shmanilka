@@ -56,17 +56,31 @@ namespace RougeLikeGame
     internal class Character : GameObject
     {
         protected int Damage;
-        protected int Health;
+        protected int Health; 
+        protected int Level;
         protected int MoveX;
         protected int MoveY;
         protected int UnderObjectIndex;
         protected bool IsHero;
+        public int LP
+        {
+            get { return Level; }
+            set { Level = value; }
+        }
 
-        public Character(int x, int y, char Symbol, int Health, int Damage, int MoveX, int MoveY, int UnderObjectIndex, bool  IsHero) 
+        public int HP
+        {
+            get { return Health; }
+            set { Health = value; }
+        }
+
+
+        public Character(int x, int y, char Symbol, int Health, int Damage, int Level, int MoveX, int MoveY, int UnderObjectIndex, bool  IsHero) 
             : base(x, y, Symbol)
         {
             this.Health = Health;
             this.Damage = Damage;
+            this.Level = Level;
             this.MoveX = MoveX;
             this.MoveY = MoveY;
             this.UnderObjectIndex = UnderObjectIndex;
@@ -113,13 +127,22 @@ namespace RougeLikeGame
             }            
             return Floor;
         }
-        public static Character HeroControl(List<List<GameObject>> Floor, Character Hero)
+        public static Character HeroControl(List<List<GameObject>> Floor, Character Hero, Character Monster)
         {
             ConsoleKey consoleKey = Console.ReadKey().Key;
             if (Hero.IsHero == true)
             {
+                if (Math.Abs((Hero.XP - Monster.XP) + (Hero.YP - Monster.YP)) == 1)
+                {
+                    Monster.Health -= (Hero.Damage * Hero.Level);
+                    if (Monster.Health <= 0)
+                    {
+                        Hero.Level++;
+                    }
+                }
                 switch (consoleKey)
                 {
+
                     case ConsoleKey.UpArrow:
                         if(IsMove(Floor, Hero, -1, 0))
                         {
@@ -154,7 +177,7 @@ namespace RougeLikeGame
                         else break;
                     default:
                         break;
-                }
+                }   
             }            
             return Hero;
         }
@@ -183,7 +206,20 @@ namespace RougeLikeGame
                 Monster.MoveY = 1;
                 Monster.YP++;
             }
+            if (Math.Abs((Hero.XP - Monster.XP) + (Hero.YP - Monster.YP)) == 1)
+            {
+                Hero.Health -= Monster.Damage;
+            }
             return Monster;
+        }
+        public static int[] Collision (Character Hero, Character Monster)
+        {
+            int[] HelthChange = new int[2];
+            if (Math.Abs((Hero.XP - Monster.XP) + (Hero.YP - Monster.YP)) == 1)
+            {
+                Hero.Health -= (Monster.Damage * Monster.Level);
+            }
+            return HelthChange;
         }
     }
 
